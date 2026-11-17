@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1,
+    "topic": "Social Engineering",
+    "question": "Which attack uses fraudulent emails to trick users into revealing credentials?",
+    "choices": {
+      "A": "Phishing",
+      "B": "DDoS",
+      "C": "SQL injection",
+      "D": "Brute force"
+    },
+    "answer": "A",
+    "explanation": "Phishing uses fake emails or websites that look legitimate to steal credentials or sensitive data."
+  },
+  {
+    "id": 2,
+    "topic": "Security Concepts",
+    "question": "In the CIA triad, which principle ensures data is not modified by unauthorized parties?",
+    "choices": {
+      "A": "Confidentiality",
+      "B": "Integrity",
+      "C": "Availability",
+      "D": "Non-repudiation"
+    },
+    "answer": "B",
+    "explanation": "Integrity means data stays accurate and unaltered. Hashing is a common way to verify it."
+  },
+  {
+    "id": 3,
+    "topic": "Authentication",
+    "question": "A user logs in with a password and a fingerprint scan. What is this an example of?",
+    "choices": {
+      "A": "Single sign-on",
+      "B": "Federation",
+      "C": "Multifactor authentication",
+      "D": "Role-based access control"
+    },
+    "answer": "C",
+    "explanation": "Password = something you know, fingerprint = something you are. Two different factors make it MFA."
+  },
+  {
+    "id": 4,
+    "topic": "Malware",
+    "question": "Which type of malware encrypts a victim's files and demands payment for the decryption key?",
+    "choices": {
+      "A": "Spyware",
+      "B": "Rootkit",
+      "C": "Worm",
+      "D": "Ransomware"
+    },
+    "answer": "D",
+    "explanation": "Ransomware locks files by encryption and demands a ransom. Offline backups are the best defense."
+  },
+  {
+    "id": 5,
+    "topic": "Security Principles",
+    "question": "Giving users only the minimum access needed to do their job is known as:",
+    "choices": {
+      "A": "Separation of duties",
+      "B": "Least privilege",
+      "C": "Defense in depth",
+      "D": "Job rotation"
+    },
+    "answer": "B",
+    "explanation": "Least privilege limits damage if an account is compromised or misused."
+  }
+]
