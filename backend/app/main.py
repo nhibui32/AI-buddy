@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from app import quiz
+from app import db, quiz
 app = FastAPI(
     title="Nhi's Cyber Buddy",
     description="An AI-powered cybersecurity learning companion.",
     version="0.1.0",
 )
-
+db.init_db()
 
 @app.get("/")
 def home():
@@ -53,8 +53,22 @@ def check_answer(req: AnswerRequest):
     if choice not in question["choices"]:
         raise HTTPException(status_code=422, detail="Invalid choice")
 
+    correct = choice == question["answer"]
+    db.save_answer(question["id"], question["topic"], choice, correct)
+
     return {
-        "correct": choice == question["answer"],
+        "correct": correct,
         "correct_answer": question["answer"],
         "explanation": question["explanation"],
     }
+
+@app.get("/api/review")
+def review_mistakes():
+    wrong_ids = db.get_wrong_question_ids()
+    questions = [quiz.get_question_by_id(i) for i in wrong_ids]
+    return [quiz.public_view(q) for q in questions if q]
+
+
+@app.get("/api/stats")
+def stats():
+    return db.get_stats()

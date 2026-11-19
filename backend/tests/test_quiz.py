@@ -40,3 +40,11 @@ def test_unknown_question_returns_404():
 def test_invalid_choice_returns_422():
     res = client.post("/api/quiz/answer", json={"question_id": 1, "choice": "Z"})
     assert res.status_code == 422
+
+def test_review_and_stats():
+    client.post("/api/quiz/answer", json={"question_id": 2, "choice": "A"})  # wrong
+    review = client.get("/api/review").json()
+    assert any(q["id"] == 2 for q in review)
+
+    stats = client.get("/api/stats").json()
+    assert stats["total"] >= 1
