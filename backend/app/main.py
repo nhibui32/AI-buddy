@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from app import db, quiz
+from app import ai, db, quiz
+from pydantic import BaseModel, Field
+
 app = FastAPI(
     title="Nhi's Cyber Buddy",
     description="An AI-powered cybersecurity learning companion.",
@@ -37,6 +39,17 @@ class AnswerRequest(BaseModel):
     question_id: int
     choice: str
 
+class ChatRequest(BaseModel):
+    message: str
+
+
+class ExplainRequest(BaseModel):
+    question_id: int
+    choice: str
+
+class ChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=2000)
+    
 
 @app.get("/api/quiz/random")
 def random_question():
@@ -72,3 +85,39 @@ def review_mistakes():
 @app.get("/api/stats")
 def stats():
     return db.get_stats()
+
+def call_tutor(prompt: str) -> str:
+    try:
+        return ai.ask_tutor(prompt)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=502, detail="AI service error")
+
+@app.post("/api/tutor/chat")
+def tutor_chat(req: ChatRequest):
+    return {"reply": call_tutor(req.message)}
+
+@app.post("/api/tutor/explain")
+def tutor_explain(req: ExplainRequest):
+    question = quiz.get_question_by_id(req.question_id)
+
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    choice = req.choice.strip().upper()
+
+    if choice not in question["choices"]:
+        raise HTTPException(status_code=422, detail="Invalid choice")
+
+    prompt = (
+        f"Question: {question['question']}\n"
+        f"Choices: {question['choices']}\n"
+        f"Correct answer: {question['answer']}\n"
+        f"Reference explanation: {question['explanation']}\n"
+        f"The student chose: {choice}\n\n"
+        "Explain why the student's choice is right or wrong, "
+        "and give one simple real-life example."
+    )
+
+    return {"reply": call_tutor(prompt)}

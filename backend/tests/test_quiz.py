@@ -48,3 +48,25 @@ def test_review_and_stats():
 
     stats = client.get("/api/stats").json()
     assert stats["total"] >= 1
+
+def test_tutor_chat_with_fake_ai(monkeypatch):
+    monkeypatch.setattr("app.ai.ask_tutor", lambda msg: "fake reply")
+
+    res = client.post(
+        "/api/tutor/chat",
+        json={"message": "hi"}
+    )
+
+    assert res.status_code == 200
+    assert res.json()["reply"] == "fake reply"
+
+
+def test_tutor_explain_unknown_question(monkeypatch):
+    monkeypatch.setattr("app.ai.ask_tutor", lambda msg: "fake reply")
+
+    res = client.post(
+        "/api/tutor/explain",
+        json={"question_id": 999, "choice": "A"}
+    )
+
+    assert res.status_code == 404
