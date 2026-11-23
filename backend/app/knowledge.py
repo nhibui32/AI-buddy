@@ -66,3 +66,19 @@ def search(query: str, limit: int = 3) -> list[dict]:
     scored.sort(key=lambda item: item[0], reverse=True)
 
     return [chunk for _, chunk in scored[:limit]]
+
+def list_topics() -> list[dict]:
+    topics = []
+    for path in sorted(KB_DIR.glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        title = text.splitlines()[0].lstrip("# ").strip() if text else path.stem
+        topics.append({"slug": path.stem, "title": title})
+    return topics
+
+
+def get_topic(slug: str) -> dict | None:
+    for topic in list_topics():
+        if topic["slug"] == slug:
+            text = (KB_DIR / f"{slug}.md").read_text(encoding="utf-8")
+            return {**topic, "content": text}
+    return None

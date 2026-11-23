@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-
-from app import ai, db, quiz
+from app import ai, db, knowledge, quiz
 from pydantic import BaseModel, Field
 
 app = FastAPI(
@@ -19,6 +18,7 @@ def home():
     }
 
 
+    return quiz.public_view(quiz.get_random_question())
 @app.get("/health")
 def health_check():
     return {
@@ -50,11 +50,12 @@ class ExplainRequest(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
     
-
 @app.get("/api/quiz/random")
-def random_question():
-    return quiz.public_view(quiz.get_random_question())
-
+def random_question(topic: str | None = None):
+    question = quiz.get_random_question(topic)
+    if question is None:
+        raise HTTPException(status_code=404, detail="No question for this topic")
+    return quiz.public_view(question)
 
 @app.post("/api/quiz/answer")
 def check_answer(req: AnswerRequest):
@@ -121,3 +122,23 @@ def tutor_explain(req: ExplainRequest):
     )
 
     return {"reply": call_tutor(prompt)}
+
+@app.get("/api/learn/topics")
+def learn_topics():
+    return knowledge.list_topics()
+
+
+@app.get("/api/learn/{slug}")
+def learn_topic(slug: str):
+    topic = knowledge.get_topic(slug)
+    if topic is None:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    return topic
+
+
+@app.get("/api/review/next")
+def review_next():
+    wrong_ids = db.get_wrong_question_ids()
+    if not wrong_ids:
+        return {"message": "No mistakes to review. Nice work!"}
+    return quiz.public_view(quiz.get_question_by_id(wrong_ids[0]))

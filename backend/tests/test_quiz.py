@@ -81,3 +81,25 @@ def test_knowledge_search_finds_relevant_chunk():
 
 def test_knowledge_search_no_match():
     assert knowledge.search("zzzz qqqq") == []
+
+def test_learn_topics_and_topic():
+    topics = client.get("/api/learn/topics").json()
+    assert len(topics) > 0
+    res = client.get(f"/api/learn/{topics[0]['slug']}")
+    assert res.status_code == 200
+    assert "content" in res.json()
+
+
+def test_learn_unknown_topic_returns_404():
+    assert client.get("/api/learn/does-not-exist").status_code == 404
+
+
+def test_quiz_filter_by_topic():
+    res = client.get("/api/quiz/random", params={"topic": "Malware"})
+    assert res.status_code == 200
+    assert res.json()["topic"] == "Malware"
+
+
+def test_quiz_unknown_topic_returns_404():
+    res = client.get("/api/quiz/random", params={"topic": "Nope"})
+    assert res.status_code == 404

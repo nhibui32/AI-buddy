@@ -10,8 +10,11 @@ def load_questions() -> list[dict]:
         return json.load(f)
 
 
-def get_random_question() -> dict:
-    return random.choice(load_questions())
+def get_random_question(topic: str | None = None) -> dict | None:
+    questions = load_questions()
+    if topic:
+        questions = [q for q in questions if q["topic"].lower() == topic.lower()]
+    return random.choice(questions) if questions else None
 
 
 def get_question_by_id(question_id: int) -> dict | None:
