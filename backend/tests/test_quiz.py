@@ -78,3 +78,6 @@ def test_knowledge_search_finds_relevant_chunk():
     )
 
     assert len(results) > 0
+
+def test_knowledge_search_no_match():
+    assert knowledge.search("zzzz qqqq") == []
