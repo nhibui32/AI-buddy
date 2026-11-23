@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-
+from app import knowledge
 from app.main import app
 
 client = TestClient(app)
@@ -70,3 +70,11 @@ def test_tutor_explain_unknown_question(monkeypatch):
     )
 
     assert res.status_code == 404
+
+
+def test_knowledge_search_finds_relevant_chunk():
+    results = knowledge.search(
+        "what is integrity in the CIA triad"
+    )
+
+    assert len(results) > 0
