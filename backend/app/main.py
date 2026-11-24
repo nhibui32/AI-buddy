@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
 from app import ai, db, knowledge, quiz
 from pydantic import BaseModel, Field
 
@@ -7,6 +8,13 @@ app = FastAPI(
     title="Nhi's Cyber Buddy",
     description="An AI-powered cybersecurity learning companion.",
     version="0.1.0",
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 db.init_db()
 
@@ -17,8 +25,6 @@ def home():
         "status": "running",
     }
 
-
-    return quiz.public_view(quiz.get_random_question())
 @app.get("/health")
 def health_check():
     return {
@@ -39,17 +45,15 @@ class AnswerRequest(BaseModel):
     question_id: int
     choice: str
 
-class ChatRequest(BaseModel):
-    message: str
-
 
 class ExplainRequest(BaseModel):
     question_id: int
     choice: str
 
+
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
-    
+       
 @app.get("/api/quiz/random")
 def random_question(topic: str | None = None):
     question = quiz.get_random_question(topic)
