@@ -1,16 +1,12 @@
 
 const API_BASE_URL = "http://localhost:8000";
 
-// Send a message to AI Tutor
+// CHAT
 export async function sendChatMessage(message) {
   const response = await fetch(`${API_BASE_URL}/api/tutor/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      message: message,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
   });
 
   if (!response.ok) {
@@ -18,11 +14,10 @@ export async function sendChatMessage(message) {
   }
 
   const data = await response.json();
-
   return data.reply;
 }
 
-// Get a random quiz question
+// QUIZ
 export async function getQuestion() {
   const response = await fetch(`${API_BASE_URL}/api/quiz/random`);
 
@@ -33,16 +28,13 @@ export async function getQuestion() {
   return await response.json();
 }
 
-// Submit an answer
 export async function submitAnswer(questionId, choice) {
   const response = await fetch(`${API_BASE_URL}/api/quiz/answer`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       question_id: questionId,
-      choice: choice,
+      choice,
     }),
   });
 
@@ -53,21 +45,65 @@ export async function submitAnswer(questionId, choice) {
   return await response.json();
 }
 
-// Ask AI Buddy to explain a question
 export async function explainAnswer(questionId, choice) {
   const response = await fetch(`${API_BASE_URL}/api/tutor/explain`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       question_id: questionId,
-      choice: choice,
+      choice,
     }),
   });
 
   if (!response.ok) {
     throw new Error("Failed to get explanation from AI Buddy");
+  }
+
+  return await response.json();
+}
+
+// LEARN
+export async function getTopics() {
+  const response = await fetch(`${API_BASE_URL}/api/learn/topics`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load learning topics");
+  }
+
+  return await response.json();
+}
+
+
+export async function getTopic(slug, language = "en") {
+  const response = await fetch(
+    `${API_BASE_URL}/api/learn/${encodeURIComponent(slug)}?language=${language}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load topic content");
+  }
+
+  return await response.json();
+}
+
+
+// REVIEW
+export async function getReviewQuestion() {
+  const response = await fetch(`${API_BASE_URL}/api/review/next`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load review question");
+  }
+
+  return await response.json();
+}
+
+// STATS
+export async function getStats() {
+  const response = await fetch(`${API_BASE_URL}/api/stats`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load statistics");
   }
 
   return await response.json();

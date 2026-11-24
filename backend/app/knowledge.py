@@ -28,12 +28,13 @@ def tokenize(text: str) -> set[str]:
 def load_chunks() -> list[dict]:
     chunks = []
 
-    for path in sorted(KB_DIR.glob("*.md")):
+    # Read English notes for AI Tutor's existing knowledge search
+    for path in sorted(KB_DIR.rglob("en.md")):
         text = path.read_text(encoding="utf-8")
 
         title = (
             text.splitlines()[0].lstrip("# ").strip()
-            if text else path.stem
+            if text else path.parent.name
         )
 
         sections = re.split(r"\n(?=## )", text)
@@ -67,18 +68,66 @@ def search(query: str, limit: int = 3) -> list[dict]:
 
     return [chunk for _, chunk in scored[:limit]]
 
+
 def list_topics() -> list[dict]:
     topics = []
-    for path in sorted(KB_DIR.glob("*.md")):
-        text = path.read_text(encoding="utf-8")
-        title = text.splitlines()[0].lstrip("# ").strip() if text else path.stem
-        topics.append({"slug": path.stem, "title": title})
+
+    for folder in sorted(KB_DIR.iterdir()):
+        if not folder.is_dir():
+            continue
+
+        english_file = folder / "en.md"
+
+        if not english_file.exists():
+            continue
+
+        text = english_file.read_text(encoding="utf-8")
+
+        title = (
+            text.splitlines()[0].lstrip("# ").strip()
+            if text else folder.name
+        )
+
+        topics.append({
+            "slug": folder.name,
+            "title": title,
+        })
+
     return topics
 
 
-def get_topic(slug: str) -> dict | None:
-    for topic in list_topics():
-        if topic["slug"] == slug:
-            text = (KB_DIR / f"{slug}.md").read_text(encoding="utf-8")
-            return {**topic, "content": text}
-    return None
+def get_topic(slug: str, language: str = "en") -> dict | None:
+    # Only allow supported languages
+    if language not in {"en", "vi"}:
+        language = "en"
+
+    # Find the requested topic
+    topic_folder = KB_DIR / slug
+
+    # Prevent accessing files outside the knowledge base
+    if not topic_folder.is_dir() or topic_folder.parent != KB_DIR:
+        return None
+
+    # Load requested language
+    file_path = topic_folder / f"{language}.md"
+
+    # Fallback to English if translation is not available
+    if not file_path.exists():
+        file_path = topic_folder / "en.md"
+
+    if not file_path.exists():
+        return None
+
+    text = file_path.read_text(encoding="utf-8")
+
+    title = (
+        text.splitlines()[0].lstrip("# ").strip()
+        if text else slug
+    )
+
+    return {
+        "slug": slug,
+        "title": title,
+        "language": language if file_path.name == f"{language}.md" else "en",
+        "content": text,
+    }

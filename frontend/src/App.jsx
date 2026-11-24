@@ -20,7 +20,9 @@
 
 // export default App
 
-
+import Learn from "./components/Learn";
+import Review from "./components/Review";
+import Stats from "./components/Stats";
 import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { sendChatMessage } from "./services/api";
@@ -98,7 +100,7 @@ function App() {
 
         {/* Navigation Tabs */}
         <nav className="flex border-b">
-          {["Chat", "Quiz", "Learn", "Review"].map((tab) => (
+          {["Chat", "Quiz", "Learn", "Review", "Stats"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -232,20 +234,13 @@ function App() {
         {activeTab === "Quiz" && <Quiz />}
 
         {/* Learn Page */}
-        {activeTab === "Learn" && (
-          <div className="h-[450px] flex flex-col items-center justify-center text-gray-500">
-            <h2 className="text-2xl font-bold">Learn</h2>
-            <p className="mt-2">Learning materials coming soon!</p>
-          </div>
-        )}
+        {activeTab === "Learn" && <Learn />}
 
         {/* Review Page */}
-        {activeTab === "Review" && (
-          <div className="h-[450px] flex flex-col items-center justify-center text-gray-500">
-            <h2 className="text-2xl font-bold">Review</h2>
-            <p className="mt-2">Review system coming soon!</p>
-          </div>
-        )}
+        {activeTab === "Review" && <Review />}
+
+        {/* Stats Page */}
+        {activeTab === "Stats" && <Stats />}
 
               </div>
             </div>

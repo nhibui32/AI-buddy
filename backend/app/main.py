@@ -132,12 +132,22 @@ def learn_topics():
     return knowledge.list_topics()
 
 
+
 @app.get("/api/learn/{slug}")
-def learn_topic(slug: str):
-    topic = knowledge.get_topic(slug)
+def learn_topic(slug: str, language: str = "en"):
+    if language not in {"en", "vi"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Language must be 'en' or 'vi'",
+        )
+
+    topic = knowledge.get_topic(slug, language)
+
     if topic is None:
         raise HTTPException(status_code=404, detail="Topic not found")
+
     return topic
+
 
 
 @app.get("/api/review/next")
